@@ -1,7 +1,7 @@
 library(shiny)
 library(tidyverse)
 
-my_df <- read_csv("../testdata.csv")
+my_df <- read_csv("/var/lib/lifedata/testdata.csv")
 my_df$fruit_perc <- my_df$quantity / sum(my_df$quantity) * 100
 print("Hello Global")
 
