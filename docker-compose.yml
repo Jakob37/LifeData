@@ -13,10 +13,6 @@ services:
       - "127.0.0.1:${LDV_PORT}:${LDV_PORT}"
     volumes:
       - type: bind
-        source: ${LDV_SOURCE_SERVE_DIR}
-        target: ${LDV_TARGET_SERVE_DIR}
-        read_only: true
-      - type: bind
         source: ${LDV_SOURCE_DATA_DIR}
         target: ${LDV_TARGET_DATA_DIR}
         read_only: true
