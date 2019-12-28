@@ -3,11 +3,17 @@ services:
   lifedata-visualizer:
     image: lifedata-visualizer
     restart: unless-stopped
+    environment:
+      - DATA_DIR=${LDV_TARGET_DATA_DIR}
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - LDV_PORT=${LDV_PORT}
+        - port=${LDV_PORT}
+        - uid=${LDV_UID}
+        - user=${LDV_USER}
+        - gid=${LDV_GID}
+        - group=${LDV_GROUP}
     user: "${LDV_USER}:${LDV_GROUP}"
     ports:
       - "127.0.0.1:${LDV_PORT}:${LDV_PORT}"

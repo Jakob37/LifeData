@@ -1,12 +1,19 @@
-FROM rocker/tidy-verse:3.6.1
+FROM rocker/tidyverse:3.6.2
 
-ARG LDV_PORT
+ARG port 
+ARG uid 
+ARG gid 
+ARG user 
+ARG group
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install --no-cache --yes \
+RUN apt-get update && apt-get install --yes \
 	mini-httpd
 
-# ADD PACKAGES
+RUN R -e "install.packages('argparser', dependencies=TRUE, repos='http://cran.rstudio.com')"
+RUN R -e "install.packages('lubridate', dependencies=TRUE, repos='http://cran.rstudio.com')"
+RUN R -e "install.packages('scales', dependencies=TRUE, repos='http://cran.rstudio.com')"
+RUN R -e "install.packages('ggpubr', dependencies=TRUE, repos='http://cran.rstudio.com')"
 
 RUN mkdir -p /srv/www/lifedata-visualizer
 
@@ -16,7 +23,12 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT /usr/local/bin/entrypoint.sh
 
-RUN addgroup -g "$gid" "$group"
-RUN adduser -h /var/lib/ssh-key-manager -s /bin/nologin -G "$group" -D -u "$uid" "$user"
+RUN useradd --home-dir /var/lib/lifedata-visualizer \
+		--shell /bin/sh \
+		--uid "$uid" \
+		--system \
+		--user-group \
+		--create-home \
+		"$user"
 
-EXPOSE $LDV_PORT
+EXPOSE $port
