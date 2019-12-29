@@ -5,6 +5,7 @@ ARG uid
 ARG gid 
 ARG user 
 ARG group
+ARG graph_dir
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install --yes \
@@ -36,5 +37,8 @@ RUN useradd --home-dir /var/lib/lifedata-visualizer \
 		--user-group \
 		--create-home \
 		"$user"
+
+RUN mkdir -p "$graph_dir"
+RUN chown "$user:$group" "$graph_dir"
 
 EXPOSE $port

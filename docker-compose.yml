@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       - DATA_DIR=${LDV_TARGET_DATA_DIR}
+      - GRAPH_DIR=${LDV_TARGET_GRAPH_DIR}
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,6 +15,7 @@ services:
         - user=${LDV_USER}
         - gid=${LDV_GID}
         - group=${LDV_GROUP}
+        - graph_dir=${LDV_TARGET_GRAPH_DIR}
     user: "${LDV_USER}:${LDV_GROUP}"
     ports:
       - "127.0.0.1:${LDV_PORT}:${LDV_PORT}"
