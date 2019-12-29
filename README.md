@@ -2,12 +2,13 @@
 
 ## Configure
 1. Change values in `.env` to your preference.
-2. Create `$LDV_SOURCE_GRAPH_DIR` (Default `./mountpoints/graphs`)
-3. Give write access to user with UID `$LDV_UID` or group with GID `$LDV_GID`. For example:
+2. Create `$LDV_GENERATOR_SOURCE_GRAPH_DIR` (Default `./mountpoints/dist/graphs`)
+3. Give write access to user with UID `$LDV_GENERATOR_UID` or group with GID 
+`$LDV_GENERATOR_GID`. For example:
 
 	```bash
-		$ sudo chown "$USER:1001" ./mountpoints/graphs
-		$ sudo chmod g+w ./mountpoints/graphs
+		$ sudo chown "$USER:1001" ./mountpoints/dist/graphs
+		$ sudo chmod g+w ./mountpoints/dist/graphs
 	```
 
 ## Start
