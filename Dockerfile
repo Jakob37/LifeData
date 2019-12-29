@@ -16,9 +16,14 @@ RUN R -e "install.packages('lubridate', dependencies=TRUE, repos='http://cran.rs
 RUN R -e "install.packages('scales', dependencies=TRUE, repos='http://cran.rstudio.com')"
 RUN R -e "install.packages('ggpubr', dependencies=TRUE, repos='http://cran.rstudio.com')"
 
-RUN mkdir -p /srv/www/lifedata-visualizer
+RUN mkdir -p /usr/local/libexec/lifedata-visualizer
 
 COPY config/mini_httpd.conf /etc/mini_httpd/mini_httpd.conf
+
+COPY scripts/*.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
+
+COPY scripts/*.R /usr/local/libexec/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
