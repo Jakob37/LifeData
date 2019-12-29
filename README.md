@@ -10,6 +10,23 @@
 		$ sudo chown "$USER:1001" ./mountpoints/dist/graphs
 		$ sudo chmod g+w ./mountpoints/dist/graphs
 	```
+4. Copy `.web-server/config/mini_httpd.conf.template` to `.web-server/config/mini_httpd.conf` and edit it with values specified in `.env`. For example, for default `.env` values:
+
+	```
+	nochroot
+	dir=/srv/www/lifedata-visualizer
+	user=lvdsrv
+	host=0.0.0.0
+	port=8080
+	```
+
+5. Add some data to `./mountpoints/data/sleep.csv` in the format:
+
+	```
+	Day,Fell asleep,Woke up
+	2019-12-24,2019-12-24T23:00,2019-12-25T06:00
+	...
+	```
 
 ## Start
 `docker-compose up --build --detach`
