@@ -5,9 +5,8 @@ ARG gid
 ARG user 
 ARG group
 
-RUN DEBIAN_FRONTEND=noninteractive \
-	apt-get update && \
-	apt-get install --yes \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get install --yes \
 	inotify-tools
 
 RUN R -q -e "install.packages('argparser', dependencies=TRUE, repos='http://cran.rstudio.com', quiet=TRUE)"

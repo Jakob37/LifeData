@@ -6,9 +6,8 @@ ARG gid
 ARG user 
 ARG group
 
-RUN DEBIAN_FRONTEND=noninteractive \
-	apt-get update && \
-	apt-get install --yes \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get install --yes \
 	mini-httpd
 
 COPY config/mini_httpd.conf /etc/mini_httpd/mini_httpd.conf
