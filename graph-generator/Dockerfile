@@ -23,7 +23,6 @@ COPY scripts/*.R /usr/local/libexec/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT [ "/usr/local/bin/dumb-init", "--" ]
 CMD [ "/usr/local/bin/entrypoint.sh" ]
 
 RUN groupadd --gid "$gid" --system "$group"
