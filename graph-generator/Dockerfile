@@ -10,13 +10,10 @@ RUN DEBIAN_FRONTEND=noninteractive \
 	apt-get install --yes \
 	inotify-tools
 
-RUN R -e "install.packages('argparser', dependencies=TRUE, repos='http://cran.rstudio.com')"
-RUN R -e "install.packages('lubridate', dependencies=TRUE, repos='http://cran.rstudio.com')"
-RUN R -e "install.packages('scales', dependencies=TRUE, repos='http://cran.rstudio.com')"
-RUN R -e "install.packages('ggpubr', dependencies=TRUE, repos='http://cran.rstudio.com')"
-
-RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
-RUN chmod +x /usr/local/bin/dumb-init
+RUN R -q -e "install.packages('argparser', dependencies=TRUE, repos='http://cran.rstudio.com', quiet=TRUE)"
+RUN R -q -e "install.packages('lubridate', dependencies=TRUE, repos='http://cran.rstudio.com', quiet=TRUE)"
+RUN R -q -e "install.packages('scales', dependencies=TRUE, repos='http://cran.rstudio.com', quiet=TRUE)"
+RUN R -q -e "install.packages('ggpubr', dependencies=TRUE, repos='http://cran.rstudio.com', quiet=TRUE)"
 
 COPY scripts/*.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
