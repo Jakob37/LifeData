@@ -18,7 +18,7 @@ RUN R -q -e "install.packages('ggpubr', dependencies=TRUE, repos='http://cran.rs
 COPY scripts/*.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/*.sh
 
-RUN mkdir -p /usr/local/libexec/lifedata-visualizer
+RUN mkdir -p /usr/local/libexec/
 COPY scripts/*.R /usr/local/libexec/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
