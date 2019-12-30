@@ -46,5 +46,9 @@ services:
       - type: bind
         source: ${LDV_SERVER_SOURCE_SERVE_DIR}
         target: ${LDV_SERVER_TARGET_SERVE_DIR}
+        read_only: false
+      - type: bind
+        source: ${LDV_SERVER_SOURCE_DATA_DIR}
+        target: ${LDV_SERVER_TARGET_DATA_DIR}
         read_only: true
 
