@@ -44,7 +44,10 @@ COPY sv /usr/local/etc/sv
 RUN ln -sf /usr/local/etc/sv/* /usr/local/var/service
 
 # Rewrite SIGTERM to SIGHUP so runsvdir behaves as expected
-ENTRYPOINT [ "/usr/bin/dumb-init", "--rewrite", "15:1", "--" ]
+ENTRYPOINT [ "/usr/bin/dumb-init", \
+	"--rewrite", "15:1", \
+	"--single-child", \
+	"--" ]
 CMD [ "/usr/local/bin/runsvdir", "/usr/local/var/service" ]
 
 RUN groupadd --gid "$gid" --system "$group"
