@@ -63,6 +63,6 @@ inotifywait --quiet \
 while read -r file; do
 	if echo "$files" | grep -q "\b$file\b"; then
 		echo "Running '$script $watch_dir/$file'"
-		( $script "$watch_dir/$file" ) &
+		$script "$watch_dir/$file"
 	fi
 done
