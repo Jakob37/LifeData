@@ -56,14 +56,13 @@ test -r "$watch_dir" ||
 echo "Watching '$watch_dir' for changes to '$files'."
 echo "Script to execute is '$script'."
 
+inotifywait --quiet \
+	--monitor  \
+	--event close_write,moved_to \
+	--format %f "$watch_dir" |
 while read -r file; do
 	if echo "$files" | grep -q "\b$file\b"; then
 		echo "Running '$script $watch_dir/$file'"
 		$script "$watch_dir/$file"
 	fi
-done <<-EOF
-	"$(inotifywait --quiet \
-		--monitor  \
-		--event close_write,moved_to \
-		--format %f "$watch_dir")"
-EOF
+done
