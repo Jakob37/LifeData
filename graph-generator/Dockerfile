@@ -5,10 +5,10 @@ ARG gid
 ARG user 
 ARG group
 
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install --yes \
-	inotify-tools \
-	wget
+RUN DEBIAN_FRONTEND=noninteractive \
+	apt-get update && \
+	apt-get install --yes \
+	inotify-tools
 
 RUN R -e "install.packages('argparser', dependencies=TRUE, repos='http://cran.rstudio.com')"
 RUN R -e "install.packages('lubridate', dependencies=TRUE, repos='http://cran.rstudio.com')"
