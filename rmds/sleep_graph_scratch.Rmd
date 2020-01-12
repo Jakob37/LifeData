@@ -6,64 +6,69 @@ output: html_notebook
 # Setup libraries
 
 ```{r}
-library(tidyverse)
+quiet <- suppressPackageStartupMessages
+
+quiet(library(tidyverse))
 #library(hms)
-library(lubridate)
-library(scales)
-library(ggpubr)
+quiet(library(lubridate))
+quiet(library(scales))
+quiet(library(ggpubr))
 theme_set(theme_classic())
+quiet(library(janitor))
 ```
 
 # Load and parse data
 
-```{r}
-my_df <- read_csv("sleep.csv")
-colnames(my_df) <- make.names(colnames(my_df))
-
-my_df <- my_df %>% mutate(
-    sleep_time=as.numeric(Fell.asleep - trunc(Fell.asleep, "days")) / 60 / 60,
-    wake_time=as.numeric(Woke.up - trunc(Woke.up, "days")) / 60 / 60
-)
-
-#my_df
-#first <- my_df[1, ] %>% unlist()
-my_df$hours <- (my_df$Woke.up - my_df$Fell.asleep)
-
-my_df$hours
-head(my_df, 1)
-
-write_tsv(my_df, path = "~/Desktop/out.tsv")
-
-
-my_df$sleep_time
-```
-
-# General column plot
+## Parse functions
 
 ```{r}
-my_df
+get_hour <- function(posix_col, div_hour=TRUE) {
+    base <- as.numeric(posix_col - trunc(posix_col, "days"))
+    if (div_hour) {
+        base / 60 / 60
+    }
+    else {
+        base
+    }
+}
 
-ggplot(my_df, aes(x=Day, y=hours)) + geom_col(width = 0.4)
+setup_time_diff_cols <- function(time_df, start_date_col, end_date_col) {
+    
+    time_df$start_date <- time_df[[start_date_col]]
+    time_df$end_date <- time_df[[end_date_col]]
+    
+    time_df$start_time <- get_hour(time_df$start_date)
+    time_df$end_time <- get_hour(time_df$end_date)
+    time_df$hours <- (time_df$end_date - time_df$start_date)
+    time_df
+}
 ```
 
 
-# Bedtime hours
+## Load time datasets
 
-```{r fig.height=6}
-to_bed_plt <- ggplot(my_df, aes(x=sleep_time)) + geom_histogram(bins=24) + ggtitle("Going to bed time")
-from_bed_plt <- ggplot(my_df, aes(x=wake_time)) + geom_histogram(bins=24) + ggtitle("Waking up time")
-duration_plt <- ggplot(my_df, aes(x=hours)) + geom_histogram(bins=24) + ggtitle("Sleeping duration")
+```{r}
+sleep_df <- read_csv("sleep.csv") %>% 
+    janitor::clean_names() %>% 
+    setup_time_diff_cols("fell_asleep", "woke_up")
+head(sleep_df)
 
-ggarrange(
-    to_bed_plt,
-    from_bed_plt,
-    duration_plt,
-    nrow=3
-)
+computer_df <- read_csv("turn-off.csv", na="-") %>% 
+    janitor::clean_names() %>% 
+    filter(!is.na(turned_on)) %>%
+    setup_time_diff_cols("turned_off_computers_at", "turned_on")
+computer_df
+
+study_df <- read_csv("study-sessions.csv") %>%
+    janitor::clean_names() %>%
+    setup_time_diff_cols("start", "end")
 ```
 
+# Setup strip plot
 
-```{r fig.height=5}
+## Functions
+
+```{r}
 extract_sleep_times <- function(start, finish) {
     hour_sec <- 3600 / 4
     sleep_times_raw <- seq(
@@ -74,7 +79,12 @@ extract_sleep_times <- function(start, finish) {
     as.POSIXct(sleep_times_raw + 3600, origin='1970-01-01 00:00:00', tz="UTC")
 }
 
-sleep_times_list <- apply(my_df, 1, function(row) { 
+
+```
+
+
+```{r fig.height=5}
+sleep_times_list <- apply(sleep_df, 1, function(row) { 
     # row[[2]]
     message(row[[2]])
     message(row[[3]])
@@ -83,7 +93,7 @@ sleep_times_list <- apply(my_df, 1, function(row) {
 
 all_sleep_times <- unlist(sleep_times_list)
 
-all_times <- seq(min(my_df$Fell.asleep), max(my_df$Fell.asleep), by = 3600 / 4)
+all_times <- seq(min(sleep_df$start_date), max(sleep_df$end_date), by = 3600 / 4)
 all_times_df <- data.frame(all_times)
 all_times_df$time <- as.numeric(all_times - trunc(all_times, "days")) / 3600
 all_times_df$date <- as.Date(ymd_hms(all_times_df$all_times))
@@ -99,43 +109,24 @@ get_range <- function(raw_df, start="2019-12-01", end="2019-12-31") {
         filter(date <= as.Date(end, origin='1970-01-01 00:00:00', tz="UTC"))
 }
 
-ggplot(all_times_df %>% get_range("2019-10-01", "2019-10-31"), aes(x=date, y=time, fill=is_sleeping)) + 
-    geom_tile(width=0.5) + 
-    scale_fill_manual(values=c("#cccccc", "#007700")) + 
-    ggtitle("Sleeping pattern December") +
-    scale_x_date(date_breaks = "1 day") +
-    theme(axis.text.x = element_text(angle=90, vjust=0.5))
-
-
-ggplot(all_times_df %>% get_range("2019-11-01", "2019-11-30"), aes(x=date, y=time, fill=is_sleeping)) + 
-    geom_tile(width=0.5) + 
-    scale_fill_manual(values=c("#cccccc", "#007700")) + 
-    ggtitle("Sleeping pattern November") +
-    scale_x_date(date_breaks = "1 day") +
-    theme(axis.text.x = element_text(angle=90, vjust=0.5))
-
-
-ggplot(all_times_df %>% get_range("2019-12-01", "2019-12-31"), aes(x=date, y=time, fill=is_sleeping)) + 
-    geom_tile(width=0.5) + 
-    scale_fill_manual(values=c("#cccccc", "#007700")) + 
-    ggtitle("Sleeping pattern December") +
-    scale_x_date(date_breaks = "1 day") +
-    theme(axis.text.x = element_text(angle=90, vjust=0.5))
-
-plt <- ggplot(all_times_df, aes(x=date, y=time, fill=is_sleeping)) + 
-    geom_tile(width=0.5) + 
-    scale_fill_manual(values=c("#cccccc", "#007700")) + 
-    ggtitle("Sleeping pattern") +
-    scale_x_date(date_breaks = "1 day") +
-    theme(axis.text.x = element_text(angle=90, vjust=0.5))
-
-ggsave(plt, filename = "~/Desktop/sleep_pattern.png", width=10, height=5)
-
-
-write_tsv(my_df, path = "~/Desktop/out.tsv")
-
 ```
 
+## Plotting
+
+
+
+```{r}
+plt <- ggplot(all_times_df %>% get_range("2019-12-01", "2019-12-31"), aes(x=date, y=time, fill=is_sleeping)) +
+    geom_tile(width=0.5) +
+    scale_fill_manual(values=c("#cccccc", "#007700")) +
+    ggtitle("Sleeping pattern December") +
+    scale_x_date(date_breaks = "1 day") +
+    theme(axis.text.x = element_text(angle=90, vjust=0.5))
+
+plt
+ggsave(plt, filename = "~/Desktop/sleep_pattern.png", width=10, height=5)
+
+```
 
 
 
