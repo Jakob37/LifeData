@@ -1,5 +1,11 @@
-.Rproj.user/
+# File endings
+*.csv
+*.nb.html
 *.Rproj
-mountpoints/data/sleep.csv
+
+# Folders
+.Rproj.user/
 mountpoints/dist/
+
+# Files
 web-server/config/mini_httpd.conf
