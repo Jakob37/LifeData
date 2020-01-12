@@ -69,35 +69,67 @@ study_df <- read_csv("study-sessions.csv") %>%
 ## Functions
 
 ```{r}
-extract_sleep_times <- function(start, finish) {
+# Retrieves a day-wise list where each day contains quarters where the feature was active
+extract_active_quarters_per_day <- function(start, finish) {
     hour_sec <- 3600 / 4
-    sleep_times_raw <- seq(
+    active_times_raw <- seq(
         as.POSIXct(start), 
         as.POSIXct(finish), 
         by = hour_sec
     )
-    as.POSIXct(sleep_times_raw + 3600, origin='1970-01-01 00:00:00', tz="UTC")
+    as.POSIXct(active_times_raw + 3600, origin='1970-01-01 00:00:00', tz="UTC")
 }
 
+setup_all_times_in_range <- function(start_date, end_date, interval) {
+    all_times <- seq(start_date, end_date, by = interval)
+    all_times_df <- data.frame(all_times)
+    all_times_df$time <- as.numeric(all_times - trunc(all_times, "days")) / 3600
+    all_times_df$date <- as.Date(ymd_hms(all_times_df$all_times))
+    all_times_df
+}
 
+head(computer_df)
 ```
 
 
 ```{r fig.height=5}
-sleep_times_list <- apply(sleep_df, 1, function(row) { 
-    # row[[2]]
-    message(row[[2]])
-    message(row[[3]])
-    extract_sleep_times(row[[2]], row[[3]])
+all_sleep_times <- apply(sleep_df, 1, function(row) { 
+    extract_active_quarters_per_day(row[['start_date']], row[['end_date']])
+}) %>% unlist()
+
+all_computer_times <- apply(computer_df, 1, function(row) {
+    extract_active_quarters_per_day(row[['start_date']], row[['end_date']])
+}) %>% unlist()
+
+all_study_times <- apply(study_df, 1, function(row) {
+    extract_active_quarters_per_day(row['start_date'], row['end_date'])
+}) %>% unlist()
+
+
+quarter <- 3600 / 4
+all_times_df <- setup_all_times_in_range(min(sleep_df$start_date), max(sleep_df$end_date), interval = quarter)
+all_times_df$is_sleeping <- all_times_df$all_times %in% all_sleep_times
+all_times_df$computer_off <- all_times_df$all_times %in% all_computer_times
+all_times_df$is_studying <- all_times_df$all_times %in% all_study_times
+all_times_df$combined <- paste(all_times_df$is_sleeping, all_times_df$computer_off)
+
+all_times_df$status <- apply(all_times_df, 1, function(row) {
+    # print(row)
+    if (row['is_sleeping']) {
+        "sleeping"
+    }
+    else if (row['is_studying']) {
+        "studying"
+    }
+    else if (row['computer_off']) {
+        "computer_off"
+    }
+    else {
+        "idle"
+    }
 })
 
-all_sleep_times <- unlist(sleep_times_list)
 
-all_times <- seq(min(sleep_df$start_date), max(sleep_df$end_date), by = 3600 / 4)
-all_times_df <- data.frame(all_times)
-all_times_df$time <- as.numeric(all_times - trunc(all_times, "days")) / 3600
-all_times_df$date <- as.Date(ymd_hms(all_times_df$all_times))
-all_times_df$is_sleeping <- all_times_df$all_times %in% all_sleep_times
 
 tail(all_times_df, 100)
 
@@ -116,15 +148,16 @@ get_range <- function(raw_df, start="2019-12-01", end="2019-12-31") {
 
 
 ```{r}
-plt <- ggplot(all_times_df %>% get_range("2019-12-01", "2019-12-31"), aes(x=date, y=time, fill=is_sleeping)) +
+# plt <- ggplot(all_times_df %>% get_range("2019-12-01", "2019-12-31"), aes(x=date, y=time, fill=combined)) +
+plt <- ggplot(all_times_df %>% get_range("2020-01-01", "2020-01-31"), aes(x=date, y=time, fill=status)) +
     geom_tile(width=0.5) +
-    scale_fill_manual(values=c("#cccccc", "#007700")) +
-    ggtitle("Sleeping pattern December") +
+    scale_fill_manual(values=c("#4d99e6", "#dddddd", "#66B266", "#ff6600")) +
+    ggtitle("Life pattern December") +
     scale_x_date(date_breaks = "1 day") +
     theme(axis.text.x = element_text(angle=90, vjust=0.5))
 
 plt
-ggsave(plt, filename = "~/Desktop/sleep_pattern.png", width=10, height=5)
+ggsave(plt, filename = "~/Desktop/life_pattern.png", width=10, height=5)
 
 ```
 
