@@ -2,6 +2,8 @@
 *.csv
 *.nb.html
 *.Rproj
+*.pdf
+*.png
 
 # Folders
 .Rproj.user/
