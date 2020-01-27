@@ -30,11 +30,11 @@ main <- function() {
         filter(!is.na(turned_on)) %>%
         setup_time_diff_cols("turned_off_computers_at", "turned_on")
     
-    study_df <- read_csv(argv$in_study) %>%
-        janitor::clean_names() %>%
-        setup_time_diff_cols("start", "end")
+    #study_df <- read_csv(argv$in_study) %>%
+    #    janitor::clean_names() %>%
+    #    setup_time_diff_cols("start", "end")
     
-    all_times_df <- generate_all_times_df(sleep_df, computer_df, study_df)
+    all_times_df <- generate_all_times_df(sleep_df, computer_df)
     
     if (argv$out_histograms != "") {
         print(sprintf("Writing plot to %s", argv$out_histograms))
@@ -129,16 +129,16 @@ generate_all_times_df <- function(sleep_df, computer_df, study_df) {
     all_times_df <- setup_all_times_in_range(min(sleep_df$start_date), max(sleep_df$end_date), interval = quarter)
     all_times_df$is_sleeping <- all_times_df$all_times %in% all_sleep_times
     all_times_df$computer_off <- all_times_df$all_times %in% all_computer_times
-    all_times_df$is_studying <- all_times_df$all_times %in% all_study_times
+    #all_times_df$is_studying <- all_times_df$all_times %in% all_study_times
     all_times_df$combined <- paste(all_times_df$is_sleeping, all_times_df$computer_off)
     
     all_times_df$status <- apply(all_times_df, 1, function(row) {
         if (row['is_sleeping']) {
             "sleeping"
         }
-        else if (row['is_studying']) {
-            "studying"
-        }
+        #else if (row['is_studying']) {
+        #    "studying"
+        #}
         else if (row['computer_off']) {
             "computer_off"
         }
